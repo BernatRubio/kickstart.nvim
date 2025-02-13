@@ -29,14 +29,45 @@ return {
     require('neo-tree').setup(opts)
     vim.cmd 'Neotree show right' -- Open Neo-tree on startup
 
-    -- Toggle focus between Neo-tree and the last accessed window with <C-n>
+    -- Keep track of the last non–Neo-tree window
+    local last_non_neotree_win = nil
+
+    -- Initialize last_non_neotree_win on startup
+    vim.api.nvim_create_autocmd('VimEnter', {
+      callback = function()
+        local win = vim.api.nvim_get_current_win()
+        local buf = vim.api.nvim_win_get_buf(win)
+        if vim.bo[buf].filetype ~= 'neo-tree' then
+          last_non_neotree_win = win
+        end
+      end,
+    })
+
+    -- Update the last non–Neo-tree window when entering a window
+    vim.api.nvim_create_autocmd('WinEnter', {
+      callback = function()
+        local cur_win = vim.api.nvim_get_current_win()
+        local buf = vim.api.nvim_win_get_buf(cur_win)
+        if vim.bo[buf].filetype ~= 'neo-tree' then
+          last_non_neotree_win = cur_win
+        end
+      end,
+    })
+
+    -- <C-n> mapping that uses our updated last_non_neotree_win.
     vim.keymap.set('n', '<C-n>', function()
-      if vim.bo.filetype == 'neo-tree' then
-        vim.cmd 'wincmd p'
+      local cur_win = vim.api.nvim_get_current_win()
+      local cur_buf = vim.api.nvim_win_get_buf(cur_win)
+      if vim.bo[cur_buf].filetype == 'neo-tree' then
+        if last_non_neotree_win and vim.api.nvim_win_is_valid(last_non_neotree_win) then
+          vim.api.nvim_set_current_win(last_non_neotree_win)
+        else
+          vim.cmd 'wincmd p'
+        end
       else
         vim.cmd 'Neotree focus'
       end
-    end, { silent = true, desc = 'Toggle focus between Neo-tree and last window' })
+    end, { silent = true, desc = 'Toggle focus between Neo-tree and last non-Neo-tree window' })
 
     -- Map <leader>n to toggle Neo-tree without focusing it.
     -- When Neo-tree is opened, this mapping immediately returns focus
