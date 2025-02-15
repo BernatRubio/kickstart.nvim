@@ -81,7 +81,7 @@ return {
         end
       else
         last_non_neotree_win = cur_win
-        vim.cmd 'Neotree focus'
+        vim.cmd 'Neotree focus right'
       end
     end, { silent = true, desc = 'Toggle focus between Neo-tree and last non-Neo-tree window' })
 
