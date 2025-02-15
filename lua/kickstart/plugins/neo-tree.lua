@@ -14,6 +14,8 @@ return {
     filesystem = {
       -- Automatically watch for file changes using libuv
       use_libuv_file_watcher = true,
+      -- Disable netrw hijacking
+      hijack_netrw_behavior = 'disabled',
       -- Automatically follow the current file
       follow_current_file = {
         enabled = true,
