@@ -27,10 +27,25 @@ return {
   },
   config = function(_, opts)
     require('neo-tree').setup(opts)
-    vim.cmd 'Neotree show right' -- Open Neo-tree on startup
 
     -- Keep track of the last non–Neo-tree window
     local last_non_neotree_win = nil
+
+    -- Keep track if neotree is opened
+    local is_neotree_opened = false
+
+    vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost' }, {
+      callback = function()
+        local buf = vim.api.nvim_get_current_buf()
+        local bufname = vim.api.nvim_buf_get_name(buf)
+        if not is_neotree_opened and bufname ~= '' then
+          vim.schedule(function()
+            vim.cmd 'Neotree show right'
+          end)
+          is_neotree_opened = true
+        end
+      end,
+    })
 
     -- Initialize last_non_neotree_win on startup
     vim.api.nvim_create_autocmd('VimEnter', {
@@ -43,8 +58,8 @@ return {
       end,
     })
 
-    -- Update the last non–Neo-tree window when entering a window
-    vim.api.nvim_create_autocmd('WinEnter', {
+    -- Update the last non–Neo-tree window when entering a buffer
+    vim.api.nvim_create_autocmd('BufEnter', {
       callback = function()
         local cur_win = vim.api.nvim_get_current_win()
         local buf = vim.api.nvim_win_get_buf(cur_win)
@@ -65,6 +80,7 @@ return {
           vim.cmd 'wincmd p'
         end
       else
+        last_non_neotree_win = cur_win
         vim.cmd 'Neotree focus'
       end
     end, { silent = true, desc = 'Toggle focus between Neo-tree and last non-Neo-tree window' })
@@ -74,7 +90,7 @@ return {
     -- to the window that was active before toggling.
     vim.keymap.set('n', '<leader>n', function()
       local cur_win = vim.api.nvim_get_current_win()
-      vim.cmd 'Neotree toggle'
+      vim.cmd 'Neotree toggle right'
       -- Defer to let Neo-tree toggle finish, then check if the current
       -- buffer is Neo-tree. If it is, switch back to the previously active window.
       vim.schedule(function()
