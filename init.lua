@@ -122,7 +122,7 @@ vim.opt.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
--- Disable netrw (file explorer) to prevent accidental use
+-- Disable netrw (file explorer)
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 

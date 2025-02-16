@@ -14,6 +14,7 @@ return {
     filesystem = {
       -- Automatically watch for file changes using libuv
       use_libuv_file_watcher = true,
+      -- Hijack netrw
       hijack_netrw_behavior = 'open_current',
       -- Automatically follow the current file
       follow_current_file = {
