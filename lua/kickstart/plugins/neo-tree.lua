@@ -14,8 +14,7 @@ return {
     filesystem = {
       -- Automatically watch for file changes using libuv
       use_libuv_file_watcher = true,
-      -- Disable netrw hijacking
-      hijack_netrw_behavior = 'disabled',
+      hijack_netrw_behavior = 'open_current',
       -- Automatically follow the current file
       follow_current_file = {
         enabled = true,
@@ -38,14 +37,18 @@ return {
 
     vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost' }, {
       callback = function()
-        local buf = vim.api.nvim_get_current_buf()
-        local bufname = vim.api.nvim_buf_get_name(buf)
-        if not is_neotree_opened and bufname ~= '' then
-          vim.schedule(function()
+        vim.schedule(function()
+          -- We wrap this code in vim.schedule to delay execution until after startup initialization.
+          -- This ensures that buffer details (like name and filetype) are properly populated, preventing issues where these values might be empty during early autocommand events.
+          local buf = vim.api.nvim_get_current_buf()
+          local bufname = vim.api.nvim_buf_get_name(buf)
+          local filetype = vim.bo.filetype
+
+          if not is_neotree_opened and bufname ~= '' and filetype ~= 'neo-tree' then
             vim.cmd 'Neotree show right'
-          end)
-          is_neotree_opened = true
-        end
+            is_neotree_opened = true
+          end
+        end)
       end,
     })
 
