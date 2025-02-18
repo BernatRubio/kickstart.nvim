@@ -22,8 +22,9 @@ return {
       },
       window = {
         mappings = {
-          ['\\'] = 'close_window',
+          ['<space>'] = 'none', -- Disable space mapping
         },
+        position = 'right',
       },
     },
   },
@@ -46,7 +47,7 @@ return {
           local filetype = vim.bo.filetype
 
           if not is_neotree_opened and bufname ~= '' and filetype ~= 'neo-tree' then
-            vim.cmd 'Neotree show right'
+            vim.cmd 'Neotree show'
             is_neotree_opened = true
           end
         end)
@@ -87,7 +88,7 @@ return {
         end
       else
         last_non_neotree_win = cur_win
-        vim.cmd 'Neotree focus right'
+        vim.cmd 'Neotree focus'
       end
     end, { silent = true, desc = 'Toggle focus between Neo-tree and last non-Neo-tree window' })
 
@@ -106,17 +107,17 @@ return {
       end)
     end, { silent = true, desc = 'Toggle [N]eo-tree' })
 
-    -- Auto-close Neo-tree when it's the only window left
-    vim.api.nvim_create_autocmd('WinEnter', {
-      callback = function()
-        local wins = vim.api.nvim_list_wins()
-        if #wins == 1 then
-          local buf = vim.api.nvim_win_get_buf(wins[1])
-          if vim.bo[buf].filetype == 'neo-tree' then
-            vim.cmd 'quit'
-          end
-        end
-      end,
-    })
+    -- -- Auto-close Neo-tree when it's the only window left
+    -- vim.api.nvim_create_autocmd('WinEnter', {
+    --   callback = function()
+    --     local wins = vim.api.nvim_list_wins()
+    --     if #wins == 1 then
+    --       local buf = vim.api.nvim_win_get_buf(wins[1])
+    --       if vim.bo[buf].filetype == 'neo-tree' then
+    --         vim.cmd 'quit'
+    --       end
+    --     end
+    --   end,
+    -- })
   end,
 }
