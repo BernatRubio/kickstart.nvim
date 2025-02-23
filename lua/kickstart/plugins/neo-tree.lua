@@ -1,6 +1,10 @@
 -- Neo-tree is a Neovim plugin to browse the file system
 -- https://github.com/nvim-neo-tree/neo-tree.nvim
 
+local function compute_width()
+  return math.floor(vim.o.columns * 0.2)
+end
+
 return {
   'nvim-neo-tree/neo-tree.nvim',
   version = '*',
@@ -25,6 +29,7 @@ return {
           ['<space>'] = 'none', -- Disable space mapping
         },
         position = 'right',
+        width = compute_width(),
       },
     },
   },
@@ -97,7 +102,7 @@ return {
     -- to the window that was active before toggling.
     vim.keymap.set('n', '<leader>n', function()
       local cur_win = vim.api.nvim_get_current_win()
-      vim.cmd 'Neotree toggle right'
+      vim.cmd 'Neotree toggle'
       -- Defer to let Neo-tree toggle finish, then check if the current
       -- buffer is Neo-tree. If it is, switch back to the previously active window.
       vim.schedule(function()
@@ -106,6 +111,19 @@ return {
         end
       end)
     end, { silent = true, desc = 'Toggle [N]eo-tree' })
+
+    -- Auto-resize the Neo-tree window on VimResized:
+    vim.api.nvim_create_autocmd('VimResized', {
+      group = vim.api.nvim_create_augroup('NeoTreeResize', { clear = true }),
+      callback = function()
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+          local buf = vim.api.nvim_win_get_buf(win)
+          if vim.bo[buf].filetype == 'neo-tree' then
+            vim.api.nvim_win_set_width(win, compute_width())
+          end
+        end
+      end,
+    })
 
     -- -- Auto-close Neo-tree when it's the only window left
     -- vim.api.nvim_create_autocmd('WinEnter', {
