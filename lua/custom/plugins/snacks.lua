@@ -17,5 +17,12 @@ return {
       end,
       desc = 'Lazy[G]it',
     },
+    {
+      '<leader>l',
+      function()
+        Snacks.terminal 'lazydocker'
+      end,
+      desc = '[L]azyDocker',
+    },
   },
 }
